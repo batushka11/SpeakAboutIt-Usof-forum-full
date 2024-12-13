@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  login          String          @unique
+  password       String
+  fullname       String
+  email          String          @unique
+  avatarPath     String          @default("default_avatar.png") @map("avatar_path")
+  role           Role            @default(USER)
+  post           Post[]
+  comment        Comment[]
+  like           Like[]
+  rating         Int             @default(0)
+  isConfirm      Boolean         @default(false) @map("is_confirm")
+  confirmToken   String?         @unique @map("confirm_token")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  PostFavorite   PostFavorite[]
+  lastLogout     DateTime?       @map("last_logout")
+  lastActive     DateTime?       @map("last_active")
+  PostSubscribe  PostSubscribe[]
+  postsCount     Int             @default(0) @map("post_count")
+  commentsCount  Int             @default(0) @map("comments_count")
+  reactionsCount Int             @default(0) @map("reactions_count")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Post {
+  id            Int             @id @default(autoincrement())
+  publishAt     DateTime        @default(now()) @map("publish_at")
+  status        Status
+  content       String          @db.Text
+  title         String          @db.Text
+  categories    PostCategory[]
+  user          User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId      Int             @map("author_id")
+  like          Like[]
+  comments      Comment[]
+  rating        Int             @default(0)
+  PostFavorite  PostFavorite[]
+  PostSubscribe PostSubscribe[]
+}
+
+model Category {
+  id           Int            @id @default(autoincrement())
+  title        String         @unique
+  description  String         @db.Text
+  postCategory PostCategory[]
+  createdAt    DateTime       @default(now()) @map("created_at")
+}
+
+model PostCategory {
+  postId     Int      @map("post_id")
+  categoryId Int      @map("category_id")
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([postId, categoryId])
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int      @map("author_id")
+  publishAt DateTime @default(now()) @map("publish_at")
+  content   String   @db.Text
+  like      Like[]
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
+  postId    Int?     @map("post_id")
+  rating    Int      @default(0)
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int      @map("author_id")
+  publishAt DateTime @default(now()) @map("publish_at")
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int?     @map("post_id")
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId Int?     @map("comment_id")
+  type      Type
+
+  @@unique([postId, authorId])
+  @@unique([commentId, authorId])
+}
+
+enum Type {
+  LIKE
+  DISLIKE
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+model PostFavorite {
+  postId Int      @map("post_id")
+  userId Int      @map("user_id")
+  post   Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addAt  DateTime @default(now()) @map("created_at")
+
+  @@id([postId, userId])
+}
+
+model PostSubscribe {
+  postId Int      @map("post_id")
+  userId Int      @map("user_id")
+  post   Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addAt  DateTime @default(now()) @map("created_at")
+
+  @@id([postId, userId])
+}
