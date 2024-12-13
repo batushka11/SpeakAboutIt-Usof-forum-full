@@ -118,7 +118,7 @@ By default, the app will be available at http://localhost:3000
 ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
 
 
-# Speak About It
+# Speak About It - Backend
 
 Speak About It is a question-and-answer platform designed for both professional and enthusiast programmers. Inspired by the collaborative environment of forums like Stack Overflow, **Speak About It** allows users to share their challenges and solutions through short posts, receive community feedback, and build a reputation based on their contributions. This project, developed with **NestJS**, **Prisma**, **MySQL**, **Node.js** and **AWS**, is an API-driven solution aimed at fostering knowledge-sharing and community engagement.
 
